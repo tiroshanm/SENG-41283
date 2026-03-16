@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SENG 41283 — Distributed & Cloud Computing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+        :root {
+            --white: #ffffff;
+            --off-white: #f8f8f8;
+            --cream: #f5f5f5;
+            --light-gray: #e8e8e6;
+            --medium-gray: #999999;
+            --dark-gray: #4a4a4a;
+            --charcoal: #2a2a2a;
+            --black: #1a1a1a;
+            --accent: #8b7355;
+            --accent-light: #c4b5a0;
+            --accent-pale: #e8dfd4;
+            --font-serif: 'Cormorant Garamond', Georgia, serif;
+            --font-sans: 'Source Sans 3', -apple-system, sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--off-white);
+            color: var(--charcoal);
+            line-height: 1.7;
+            font-weight: 300;
+            overflow-x: hidden;
+        }
+
+        ::selection { background: var(--accent-light); color: var(--black); }
+        a { text-decoration: none; color: inherit; }
+        button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+        /* ── Scroll Progress ── */
+        .scroll-progress {
+            position: fixed; top: 0; left: 0;
+            height: 2px; background: var(--accent);
+            z-index: 1001; transition: width 0.1s ease;
+        }
+
+        /* ── Navigation ── */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            padding: 1.2rem 4rem;
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(248, 248, 248, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid transparent;
+            transition: all 0.4s ease;
+        }
+        nav.scrolled { border-bottom: 1px solid var(--light-gray); padding: 0.8rem 4rem; }
+        .nav-left { display: flex; align-items: center; gap: 2rem; }
+        .nav-logo { font-family: var(--font-serif); font-size: 1.3rem; font-weight: 400; letter-spacing: 0.02em; color: var(--black); }
+        .nav-logo span { color: var(--accent); }
+        .nav-back { font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--medium-gray); transition: color 0.3s ease; display: flex; align-items: center; gap: 0.4rem; }
+        .nav-back:hover { color: var(--accent); }
+        .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+        .nav-links a { font-size: 0.8rem; font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dark-gray); position: relative; transition: color 0.3s ease; }
+        .nav-links a::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 1px; background: var(--accent); transition: width 0.3s ease; }
+        .nav-links a:hover { color: var(--black); }
+        .nav-links a:hover::after { width: 100%; }
+        .nav-links a.active { color: var(--accent); }
+        .nav-links a.active::after { width: 100%; }
+        .mobile-menu-btn { display: none; padding: 0.5rem; }
+        .mobile-menu-btn span { display: block; width: 22px; height: 1.5px; background: var(--black); margin: 5px 0; transition: all 0.3s ease; }
+
+        /* ── Hero ── */
+        .hero {
+            padding: 10rem 4rem 4rem; text-align: center; position: relative;
+            background: linear-gradient(180deg, #f8f8f8 0%, #f2f2f2 100%);
+        }
+        .hero::before {
+            content: ''; position: absolute; top: 30%; left: 50%; transform: translateX(-50%);
+            width: 600px; height: 400px;
+            background: radial-gradient(circle, var(--accent-light) 0%, transparent 70%);
+            opacity: 0.12; filter: blur(80px);
+        }
+        .hero-label { font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; font-weight: 500; }
+        .hero h1 { font-family: var(--font-serif); font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 300; line-height: 1.15; color: var(--black); margin-bottom: 1rem; letter-spacing: -0.02em; }
+        .hero h1 em { font-style: italic; color: var(--accent); }
+        .hero-description { font-size: 1.05rem; color: var(--dark-gray); max-width: 600px; margin: 0 auto 2rem; line-height: 1.8; }
+        .hero-meta { display: flex; justify-content: center; flex-wrap: wrap; gap: 1rem; }
+        .meta-tag { padding: 0.45rem 1rem; background: rgba(255,255,255,0.8); border: 1px solid var(--light-gray); font-size: 0.72rem; letter-spacing: 0.05em; color: var(--dark-gray); transition: all 0.3s ease; }
+        .meta-tag:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* ── Progress Bar ── */
+        .progress-section { max-width: 600px; margin: 2rem auto 0; }
+        .progress-label { display: flex; justify-content: space-between; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--medium-gray); margin-bottom: 0.5rem; }
+        .progress-label-value { color: var(--accent); font-weight: 500; }
+        .progress-bar { width: 100%; height: 3px; background: var(--light-gray); overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent); transition: width 0.8s ease; }
+
+        /* ── Module Band ── */
+        .module-band {
+            background: var(--black);
+            padding: 0.75rem 4rem;
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 0.5rem;
+        }
+        .module-band-left { font-size: 0.72rem; letter-spacing: 0.06em; color: var(--medium-gray); }
+        .module-band-left strong { color: var(--accent); font-weight: 500; }
+        .module-band-right { display: flex; gap: 1.5rem; }
+        .module-band-right a { font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.4); transition: color 0.3s; }
+        .module-band-right a:hover { color: var(--white); }
+
+        /* ── Layout ── */
+        .layout { display: grid; grid-template-columns: 240px 1fr; gap: 0; max-width: 1400px; margin: 0 auto; }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            padding: 2rem 1.5rem; border-right: 1px solid var(--light-gray);
+            position: sticky; top: 60px; height: calc(100vh - 60px);
+            overflow-y: auto; background: var(--off-white);
+        }
+        .sidebar::-webkit-scrollbar { width: 3px; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--light-gray); }
+        .sidebar-title { font-family: var(--font-serif); font-size: 1rem; font-weight: 400; color: var(--black); margin-bottom: 0.3rem; }
+        .sidebar-desc { font-size: 0.75rem; color: var(--medium-gray); margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--light-gray); line-height: 1.5; }
+        .sidebar-section { margin-bottom: 1.5rem; }
+        .sidebar-section-label { font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; font-weight: 500; }
+        .sidebar-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; font-size: 0.78rem; color: var(--dark-gray); cursor: pointer; transition: color 0.2s ease; }
+        .sidebar-item:hover { color: var(--accent); }
+        .sidebar-check { font-size: 0.65rem; color: var(--accent); min-width: 14px; }
+        .sidebar-lock { font-size: 0.65rem; color: var(--light-gray); min-width: 14px; }
+        .sidebar-nav-links { margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--light-gray); }
+        .sidebar-nav-link { display: block; padding: 0.4rem 0; font-size: 0.8rem; color: var(--dark-gray); transition: color 0.2s ease; }
+        .sidebar-nav-link:hover { color: var(--accent); }
+        .sidebar-nav-link.active { color: var(--accent); font-weight: 500; }
+
+        /* ── Main Content ── */
+        .main-content { padding: 2.5rem 3rem; min-height: 100vh; }
+
+        /* ── Section Headers ── */
+        .section-header { margin-bottom: 1.5rem; }
+        .section-label { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.3rem; font-weight: 500; }
+        .section-title { font-family: var(--font-serif); font-size: clamp(1.4rem, 2.5vw, 1.8rem); font-weight: 300; color: var(--black); letter-spacing: -0.01em; }
+
+        /* ── Overview Card ── */
+        .overview-card { background: #f2f2f2; padding: 1.5rem; margin-bottom: 2.5rem; border-left: 3px solid var(--accent); }
+        .overview-card p { font-size: 0.9rem; color: var(--dark-gray); line-height: 1.7; margin-bottom: 0.5rem; }
+        .overview-card p:last-child { margin-bottom: 0; }
+        .overview-card strong { color: var(--black); font-weight: 500; }
+
+        /* ── Part Divider ── */
+        .part-divider { display: flex; align-items: center; gap: 1rem; padding: 1rem 0; margin: 2.5rem 0 1.5rem; border-bottom: 1px solid var(--light-gray); }
+        .part-divider-num { font-family: var(--font-serif); font-size: 2rem; font-weight: 300; color: var(--accent-light); font-style: italic; line-height: 1; }
+        .part-divider-content h3 { font-family: var(--font-serif); font-size: 1.15rem; font-weight: 400; color: var(--black); }
+        .part-divider-content p { font-size: 0.72rem; color: var(--medium-gray); letter-spacing: 0.03em; }
+
+        /* ── Lectures Grid ── */
+        .lectures-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.2rem; margin-bottom: 1.5rem; }
+
+        /* ── Lecture Card ── */
+        .lecture-card { background: var(--white); border: 1px solid var(--light-gray); transition: all 0.4s ease; position: relative; overflow: hidden; }
+        .lecture-card::before { content: ''; position: absolute; top: 0; left: 0; width: 2px; height: 0; background: var(--accent); transition: height 0.4s ease; }
+        .lecture-card:hover { border-color: var(--accent-light); box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
+        .lecture-card:hover::before { height: 100%; }
+        .lecture-card-header { padding: 1.2rem 1.5rem 0.8rem; display: flex; justify-content: space-between; align-items: flex-start; }
+        .lecture-num { font-family: var(--font-serif); font-size: 2.5rem; font-weight: 300; color: var(--light-gray); line-height: 1; font-style: italic; transition: color 0.3s ease; }
+        .lecture-card:hover .lecture-num { color: var(--accent-light); }
+        .lecture-title { font-family: var(--font-serif); font-size: 1.05rem; font-weight: 400; color: var(--black); line-height: 1.35; margin-bottom: 0.2rem; }
+        .lecture-subtitle { font-size: 0.78rem; color: var(--medium-gray); }
+        .lecture-ref { font-size: 0.68rem; color: var(--accent); margin-top: 0.3rem; letter-spacing: 0.03em; }
+        .lecture-card-body { padding: 0 1.5rem 1.2rem; }
+        .topics-list { list-style: none; margin-bottom: 1rem; }
+        .topics-list li { padding: 0.3rem 0 0.3rem 1.2rem; position: relative; font-size: 0.82rem; color: var(--dark-gray); border-bottom: 1px solid #fafafa; line-height: 1.5; }
+        .topics-list li:last-child { border-bottom: none; }
+        .topics-list li::before { content: '→'; position: absolute; left: 0; color: var(--accent-light); font-size: 0.72rem; }
+        .lecture-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+
+        /* ── Buttons ── */
+        .btn { padding: 0.45rem 1rem; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 500; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 0.4rem; }
+        .btn-primary { background: var(--accent); color: var(--white); }
+        .btn-primary:hover { background: var(--charcoal); }
+        .btn-secondary { background: transparent; color: var(--dark-gray); border: 1px solid var(--light-gray); }
+        .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* ── Assessments ── */
+        .assessments-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.2rem; margin-top: 1.5rem; }
+        .assessment-card { background: var(--white); border: 1px solid var(--light-gray); padding: 1.5rem; transition: all 0.4s ease; position: relative; overflow: hidden; }
+        .assessment-card::before { content: ''; position: absolute; top: 0; left: 0; width: 2px; height: 0; background: var(--accent); transition: height 0.4s ease; }
+        .assessment-card:hover { border-color: var(--accent-light); box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
+        .assessment-card:hover::before { height: 100%; }
+        .assessment-type { font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; font-weight: 500; }
+        .assessment-title { font-family: var(--font-serif); font-size: 1.1rem; font-weight: 400; color: var(--black); margin-bottom: 0.4rem; line-height: 1.3; }
+        .assessment-meta { font-size: 0.78rem; color: var(--medium-gray); margin-bottom: 0.8rem; }
+        .assessment-desc { font-size: 0.83rem; color: var(--dark-gray); line-height: 1.65; margin-bottom: 1rem; }
+        .assessment-tasks { list-style: none; margin-bottom: 1rem; }
+        .assessment-tasks li { padding: 0.3rem 0 0.3rem 1.2rem; position: relative; font-size: 0.8rem; color: var(--dark-gray); border-bottom: 1px solid #fafafa; }
+        .assessment-tasks li:last-child { border-bottom: none; }
+        .assessment-tasks li::before { content: '→'; position: absolute; left: 0; color: var(--accent-light); font-size: 0.72rem; }
+        .assessment-weight { display: inline-block; padding: 0.3rem 0.8rem; background: var(--accent-pale); color: var(--accent); font-size: 0.7rem; letter-spacing: 0.05em; font-weight: 500; }
+
+        /* ── Resources Section ── */
+        .resources-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+        .resource-card { padding: 1.5rem; background: #f2f2f2; text-align: center; transition: all 0.3s ease; }
+        .resource-card:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
+        .resource-icon { font-size: 1.5rem; margin-bottom: 0.6rem; }
+        .resource-card h3 { font-family: var(--font-serif); font-size: 0.95rem; font-weight: 400; color: var(--black); margin-bottom: 0.25rem; }
+        .resource-card h3 a { color: inherit; transition: color 0.3s; }
+        .resource-card h3 a:hover { color: var(--accent); }
+        .resource-card p { font-size: 0.72rem; color: var(--medium-gray); }
+
+        /* ── Learning Path ── */
+        .learning-path { margin-top: 1.5rem; }
+        .path-item { display: flex; gap: 1rem; padding: 0.8rem 0; border-bottom: 1px solid var(--light-gray); }
+        .path-item:last-child { border-bottom: none; }
+        .path-phase { font-family: var(--font-serif); font-size: 0.9rem; font-style: italic; color: var(--accent); min-width: 60px; }
+        .path-desc { font-size: 0.85rem; color: var(--dark-gray); line-height: 1.6; }
+        .path-desc strong { color: var(--black); font-weight: 500; }
+
+        /* ── Course Structure ── */
+        .course-structure { margin-top: 2rem; padding: 1.5rem; background: #f2f2f2; border-left: 3px solid var(--accent); }
+        .course-structure p { font-size: 0.85rem; color: var(--dark-gray); margin-bottom: 0.5rem; line-height: 1.7; }
+        .course-structure p:last-child { margin-bottom: 0; }
+        .course-structure strong { color: var(--black); font-weight: 500; }
+
+        /* ── Footer ── */
+        footer { background: var(--black); color: var(--white); text-align: center; padding: 2.5rem 4rem; }
+        .footer-title { font-family: var(--font-serif); font-size: 1.1rem; font-weight: 400; margin-bottom: 0.3rem; }
+        .footer-sub { font-size: 0.72rem; color: var(--medium-gray); margin-bottom: 1rem; }
+        .footer-links { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; }
+        .footer-links a { font-size: 0.75rem; color: var(--medium-gray); letter-spacing: 0.04em; transition: color 0.3s ease; }
+        .footer-links a:hover { color: var(--white); }
+        .footer-copy { font-size: 0.65rem; color: var(--medium-gray); margin-top: 1.2rem; opacity: 0.6; }
+
+        /* ── Animations ── */
+        .fade-in { opacity: 0; transform: translateY(12px); transition: opacity 0.5s ease, transform 0.5s ease; }
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+        /* ── Responsive ── */
+        @media (max-width: 1024px) {
+            .layout { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .main-content { padding: 2rem; }
+        }
+        @media (max-width: 768px) {
+            nav { padding: 1rem 1.5rem; }
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: block; }
+            .hero { padding: 8rem 1.5rem 3rem; }
+            .main-content { padding: 1.5rem; }
+            .lectures-grid { grid-template-columns: 1fr; }
+            .assessments-grid { grid-template-columns: 1fr; }
+            .hero-meta { flex-direction: column; align-items: center; }
+            .resources-grid { grid-template-columns: 1fr 1fr; }
+            .module-band { padding: 0.75rem 1.5rem; }
+            footer { padding: 2rem 1.5rem; }
+        }
+        @media (max-width: 480px) { .resources-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="scroll-progress" id="scrollBar"></div>
+
+<!-- Navigation -->
+<nav id="mainNav">
+  <div class="nav-left">
+    <div class="nav-logo">SENG<span>.</span>41283</div>
+    <a class="nav-back" href="https://tiroshanm.github.io/">← Portfolio</a>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#lectures" class="active">Lectures</a></li>
+    <li><a href="#assessments">Assessments</a></li>
+    <li><a href="#resources">Resources</a></li>
+    <li><a href="#about">About</a></li>
+  </ul>
+  <button class="mobile-menu-btn" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <p class="hero-label">University of Kelaniya · Software Engineering Teaching Unit</p>
+  <h1>Distributed <em>&amp;</em>  Cloud Computing</h1>
+  <p class="hero-description">
+    A rigorous study of the principles, architectures, and engineering challenges of distributed
+    systems — from foundational communication models and interprocess communication through to
+    replication, security, distributed transactions, and cloud-native orchestration.
+  </p>
+  <div class="hero-meta">
+    <span class="meta-tag">Eng. Dr. Tiroshan Madushanka</span>
+    <span class="meta-tag">12 Lecture Course</span>
+    <span class="meta-tag">4 Blog Assignments</span>
+    <span class="meta-tag">Year 4 SE</span>
+  </div>
+  <div class="progress-section">
+    <div class="progress-label">
+      <span>Course Progress</span>
+      <span class="progress-label-value" id="progressText">0 / 12 Lectures</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- Main layout -->
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <p class="sidebar-title">SENG 41283</p>
+    <p class="sidebar-desc">Distributed & Cloud Computing<br>Year 4 BSc Software Engineering</p>
+
+    <div class="sidebar-nav-links">
+      <a class="sidebar-nav-link active" href="#lectures">Lectures</a>
+      <a class="sidebar-nav-link" href="#assessments">Assessments</a>
+      <a class="sidebar-nav-link" href="#resources">Resources</a>
+      <a class="sidebar-nav-link" href="#about">About</a>
+    </div>
+
+    <div class="sidebar-section">
+      <p class="sidebar-section-label">Part I — Foundations</p>
+      <div class="sidebar-item"><span class="sidebar-check">○</span> L01 · Characterization</div>
+      <div class="sidebar-item"><span class="sidebar-check">○</span> L02 · System Models</div>
+      <div class="sidebar-item"><span class="sidebar-check">○</span> L03 · Networking</div>
+      <div class="sidebar-item"><span class="sidebar-check">○</span> L04 · IPC</div>
+    </div>
+
+    <div class="sidebar-section">
+      <p class="sidebar-section-label">Part II — Communication</p>
+      <div class="sidebar-item"><span class="sidebar-check">○</span> L05 · Remote Invocation</div>
+      <div class="sidebar-item"><span class="sidebar-check">○</span> L06 · Microservices</div>
+      <div class="sidebar-item"><span class="sidebar-check">○</span> L07 · Indirect Comm.</div>
+    </div>
+
+    <div class="sidebar-section">
+      <p class="sidebar-section-label">Part III — Reliability</p>
+      <div class="sidebar-item"><span class="sidebar-check">○</span> L08 · Security</div>
+      <div class="sidebar-item"><span class="sidebar-check">○</span> L09 · Replication</div>
+      <div class="sidebar-item"><span class="sidebar-check">○</span> L10 · Transactions</div>
+    </div>
+
+    <div class="sidebar-section">
+      <p class="sidebar-section-label">Part IV — Advanced</p>
+      <div class="sidebar-item"><span class="sidebar-check">○</span> L11 · Cryptography</div>
+      <div class="sidebar-item"><span class="sidebar-check">○</span> L12 · Remote Inv. II</div>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main-content">
+
+    <!-- Course Overview -->
+    <section id="overview">
+      <div class="section-header fade-in">
+        <p class="section-label">Course Overview</p>
+        <h2 class="section-title">What you will learn</h2>
+      </div>
+
+      <div class="overview-card fade-in">
+        <p>
+          <strong>SENG 41283 Distributed & Cloud Computing</strong> is the Year 4 course that addresses
+          the design and engineering of systems in which components located at networked computers communicate
+          and coordinate their actions only by passing messages. It covers the full stack of distributed
+          systems knowledge: from foundational communication models through to the cloud-native architectures
+          that run today's internet-scale services.
+        </p>
+        <p>
+          You will develop four interlocking capabilities: <strong>reasoning about distributed system
+          properties</strong> (concurrency, no global clock, independent failures); <strong>understanding
+          communication at every level</strong> from UDP sockets to RPC, RMI, and microservices; <strong>applying
+          correctness principles</strong> — security, replication, and distributed transactions; and
+          <strong>working with modern cloud infrastructure</strong> — Kubernetes, containerisation, and
+          cloud-native patterns.
+        </p>
+        <p>
+          <strong>4 Parts · 12 Lectures · 4 Blog Assignments · 2 Programming Exercises</strong>
+        </p>
+        <p>
+          <strong>Part I</strong> — Foundations (L1–L4): Characterization, system models, networking, interprocess communication.<br/>
+          <strong>Part II</strong> — Communication (L5–L7): Remote invocation, monolithic vs microservices, indirect communication.<br/>
+          <strong>Part III</strong> — Reliability &amp; Security (L8–L10): Security, replication, distributed transactions.<br/>
+          <strong>Part IV</strong> — Advanced Topics (L11–L12): Cryptography, remote invocation deep dive.
+        </p>
+        <p>
+          <strong>Assessment:</strong> Blog Post 1 (10%) — Individual, due after L01.
+          Blog Post 2 (10%) — Individual, due after L04.
+          Blog Post 3 (10%) — Individual, due after L07.
+          Blog Post 4 ×3 (15%) — Individual, due after L11.
+          Programming Exercises (10%) — E1 after L05, E2 after L12.
+          Final Examination (45%) — covers all four parts.
+        </p>
+      </div>
+    </section>
+
+    <!-- Lectures -->
+    <section id="lectures">
+
+      <div class="part-divider fade-in">
+        <div class="part-divider-num">I</div>
+        <div class="part-divider-content">
+          <h3>Foundations</h3>
+          <p>Lectures 01 – 04 · The substrate of every distributed system — from definition to network protocols</p>
+        </div>
+      </div>
+
+      <div class="lectures-grid">
+
+        <!-- L01 -->
+        <div class="lecture-card fade-in">
+          <div class="lecture-card-header">
+            <div>
+              <div class="lecture-title">Characterization of Distributed Systems</div>
+              <div class="lecture-subtitle">The definition, properties, types, and engineering challenges</div>
+              <div class="lecture-ref">L01 · Part I · Coulouris §1.1–1.5</div>
+            </div>
+            <div class="lecture-num">01</div>
+          </div>
+          <div class="lecture-card-body">
+            <ul class="topics-list">
+              <li>Definition: components at networked computers communicating only by message passing</li>
+              <li>Three core characteristics: concurrency, no global clock, independent failures</li>
+              <li>Seven desired properties: Fault-Tolerant, Highly Available, Recoverable, Consistent, Scalable, Predictable Performance, Secure</li>
+              <li>Architecture types: Client-Server, Three-Tier, N-Tier, Peer-to-Peer</li>
+              <li>Trends: pervasive networking, ubiquitous computing, multimedia, utility computing</li>
+              <li>Challenges: heterogeneity, openness, security, scalability, failure handling, transparency</li>
+            </ul>
+            <div class="lecture-actions">
+              <a href="notes/LN01_Characterization_of_Distributed_Systems.pdf"><button class="btn btn-primary">↓ Notes</button></a>
+              <a href="slides/slides/L01_Characterization_of_Distributed_Systems.pptx"><button class="btn btn-secondary">Slides</button></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- L02 -->
+        <div class="lecture-card fade-in">
+          <div class="lecture-card-header">
+            <div>
+              <div class="lecture-title">System Models</div>
+              <div class="lecture-subtitle">Physical, architectural, and fundamental models of distributed systems</div>
+              <div class="lecture-ref">L02 · Part I · Coulouris §2.1–2.4</div>
+            </div>
+            <div class="lecture-num">02</div>
+          </div>
+          <div class="lecture-card-body">
+            <ul class="topics-list">
+              <li>Physical models: three generations (early, internet-scale, contemporary with cloud)</li>
+              <li>Architectural elements: communicating entities, communication paradigms, placement</li>
+              <li>Client-server vs peer-to-peer; caching, mobile code, mobile agents</li>
+              <li>Interaction model: latency, bandwidth, jitter; synchronous vs asynchronous systems</li>
+              <li>Failure model: omission, arbitrary (Byzantine), timing failures, masking techniques</li>
+              <li>Security model: access rights, principals, defeating threats, secure channels</li>
+            </ul>
+            <div class="lecture-actions">
+              <a href="notes/LN02_System_Models.pdf"><button class="btn btn-primary">↓ Notes</button></a>
+              <a href="slides/L02_System_Models.pptx"><button class="btn btn-secondary">Slides</button></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- L03 -->
+        <div class="lecture-card fade-in">
+          <div class="lecture-card-header">
+            <div>
+              <div class="lecture-title">Networking and Internetworking</div>
+              <div class="lecture-subtitle">Protocols, packet switching, routing, and IP multicast</div>
+              <div class="lecture-ref">L03 · Part I · Coulouris §3.1–3.5</div>
+            </div>
+            <div class="lecture-num">03</div>
+          </div>
+          <div class="lecture-card-body">
+            <ul class="topics-list">
+              <li>Performance: latency, data transfer rate, jitter; transmission time formula</li>
+              <li>Network types: PAN, LAN, WAN, MAN, WLAN, WMAN, WWAN — scope and technology</li>
+              <li>Packet switching; data streaming (1.5 Mbps compressed video); switching schemes</li>
+              <li>OSI protocol stack (7 layers); encapsulation; ports (well-known, registered, private)</li>
+              <li>Datagram vs virtual circuit delivery; adaptive routing algorithms</li>
+              <li>IP multicast (Class D, 224–239.255.255.255); overlay networks</li>
+            </ul>
+            <div class="lecture-actions">
+              <a href="notes/LN03_Networking_and_Internetworking.pdf"><button class="btn btn-primary">↓ Notes</button></a>
+              <a href="slides/L03_Networking_and_Internetworking.pptx"><button class="btn btn-secondary">Slides</button></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- L04 -->
+        <div class="lecture-card fade-in">
+          <div class="lecture-card-header">
+            <div>
+              <div class="lecture-title">Interprocess Communication</div>
+              <div class="lecture-subtitle">Sockets, UDP, TCP, marshalling, and multicast</div>
+              <div class="lecture-ref">L04 · Part I · Coulouris §4.1–4.4</div>
+            </div>
+            <div class="lecture-num">04</div>
+          </div>
+          <div class="lecture-card-body">
+            <ul class="topics-list">
+              <li>Synchronous vs asynchronous communication; message destinations and reliability</li>
+              <li>Socket abstraction; port binding; reliability and ordering guarantees</li>
+              <li>UDP datagrams: omission and ordering failures; DNS and VoIP use cases</li>
+              <li>TCP streams: ACK scheme, flow control, duplication/ordering, HTTP/FTP/SMTP</li>
+              <li>External data representation: CORBA CDR, Java Serialisation, XML; marshalling</li>
+              <li>IP multicast: fault tolerance, service discovery, event propagation</li>
+            </ul>
+            <div class="lecture-actions">
+              <a href="notes/LN04_Interprocess_Communication.pdf"><button class="btn btn-primary">↓ Notes</button></a>
+              <a href="slides/L04_Interprocess_Communication.pptx"><button class="btn btn-secondary">Slides</button></a>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /Part I grid -->
+
+      <div class="part-divider fade-in">
+        <div class="part-divider-num">II</div>
+        <div class="part-divider-content">
+          <h3>Communication Paradigms</h3>
+          <p>Lectures 05 – 07 · Remote invocation, modern cloud architectures, and indirect communication</p>
+        </div>
+      </div>
+
+      <div class="lectures-grid">
+
+        <!-- L05 -->
+        <div class="lecture-card fade-in">
+          <div class="lecture-card-header">
+            <div>
+              <div class="lecture-title">Remote Invocation</div>
+              <div class="lecture-subtitle">Request-reply, HTTP methods, RPC, and RMI</div>
+              <div class="lecture-ref">L05 · Part II · Coulouris §5.1–5.4</div>
+            </div>
+            <div class="lecture-num">05</div>
+          </div>
+          <div class="lecture-card-body">
+            <ul class="topics-list">
+              <li>Request–reply protocol: doOperation / getRequest / sendReply API; message structure</li>
+              <li>Failure handling: timeouts, duplicate filtering, idempotent operations, history</li>
+              <li>Exchange protocols: R (request), RR (request-reply), RRA (with acknowledge reply)</li>
+              <li>HTTP methods: GET, HEAD, POST, PUT, DELETE, OPTIONS, TRACE; status code ranges</li>
+              <li>RPC: service interfaces, maybe / at-least-once / at-most-once semantics; stubs, dispatcher</li>
+              <li>RMI: distributed object model, proxy, dispatcher, skeleton, servant, remote reference module</li>
+            </ul>
+            <div class="lecture-actions">
+              <a href="notes/LN05_Remote_Invocation.pdf"><button class="btn btn-primary">↓ Notes</button></a>
+              <a href="slides/L05_Remote_Invocation.pptx"><button class="btn btn-secondary">Slides</button></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- L06 -->
+        <div class="lecture-card fade-in">
+          <div class="lecture-card-header">
+            <div>
+              <div class="lecture-title">Monolithic vs Microservices</div>
+              <div class="lecture-subtitle">Architecture patterns and Kubernetes container orchestration</div>
+              <div class="lecture-ref">L06 · Part II · Supplementary Notes</div>
+            </div>
+            <div class="lecture-num">06</div>
+          </div>
+          <div class="lecture-card-body">
+            <ul class="topics-list">
+              <li>Monolithic architecture: components, benefits (simple to develop/test/deploy), drawbacks</li>
+              <li>Microservices: per-service databases, continuous delivery, fault isolation, tech stack freedom</li>
+              <li>E-commerce case study: Authorisation, Order, Catalogue, Cart, Payment, Shipping services</li>
+              <li>Kubernetes: velocity (immutability, declarative config, self-healing), scaling, efficiency</li>
+              <li>Hardware concepts: Node, Cluster, Persistent Volume</li>
+              <li>Software concepts: Container, Pod, Replica Set, Deployment; Service and Ingress networking</li>
+            </ul>
+            <div class="lecture-actions">
+              <a href="notes/LN06_Monolithic_vs_Microservices.pdf"><button class="btn btn-primary">↓ Notes</button></a>
+              <a href="slides/L06_Monolithic_vs_Microservices.pptx"><button class="btn btn-secondary">Slides</button></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- L07 -->
+        <div class="lecture-card fade-in">
+          <div class="lecture-card-header">
+            <div>
+              <div class="lecture-title">Indirect Communication</div>
+              <div class="lecture-subtitle">Group communication, pub-sub, message queues, DSM, tuple spaces</div>
+              <div class="lecture-ref">L07 · Part II · Coulouris §6.1–6.4</div>
+            </div>
+            <div class="lecture-num">07</div>
+          </div>
+          <div class="lecture-card-body">
+            <ul class="topics-list">
+              <li>Space uncoupling and time uncoupling — the two defining properties of indirect communication</li>
+              <li>Group communication: integrity, validity, agreement; FIFO / causal / total ordering</li>
+              <li>Group membership management: failure detection, address expansion, view-synchrony</li>
+              <li>Publish–subscribe: channel, topic, content, type-based subscriptions; centralised vs distributed routing</li>
+              <li>Message queues (MOM): blocking, polling, notify receive styles; FIFO and priority</li>
+              <li>Distributed Shared Memory (DSM) and Tuple Spaces (write / read / take)</li>
+            </ul>
+            <div class="lecture-actions">
+              <a href="notes/LN07_Indirect_Communication.pdf"><button class="btn btn-primary">↓ Notes</button></a>
+              <a href="slides/L07_Indirect_Communication.pptx"><button class="btn btn-secondary">Slides</button></a>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /Part II grid -->
+
+      <div class="part-divider fade-in">
+        <div class="part-divider-num">III</div>
+        <div class="part-divider-content">
+          <h3>Reliability, Security &amp; Consistency</h3>
+          <p>Lectures 08 – 10 · Correctness under failure: security, replication, and distributed transactions</p>
+        </div>
+      </div>
+
+      <div class="lectures-grid">
+
+        <!-- L08 -->
+        <div class="lecture-card fade-in">
+          <div class="lecture-card-header">
+            <div>
+              <div class="lecture-title">Security in Distributed Systems</div>
+              <div class="lecture-subtitle">CIA triad, cryptography, authentication, signatures, and firewalls</div>
+              <div class="lecture-ref">L08 · Part III · Coulouris §11.1–11.5</div>
+            </div>
+            <div class="lecture-num">08</div>
+          </div>
+          <div class="lecture-card-body">
+            <ul class="topics-list">
+              <li>CIA Triad: Confidentiality, Integrity, Availability; threat classes and attack methods</li>
+              <li>Eavesdropping, masquerading, message tampering, man-in-the-middle, replay, DoS</li>
+              <li>Symmetric vs asymmetric encryption; three roles: secrecy, authentication, digital signatures</li>
+              <li>Kerberos-style authentication scenario (5 steps); public key authentication scenario</li>
+              <li>Digital signatures with secure digest functions — step-by-step scenario</li>
+              <li>Digital certificates (three-part structure); firewalls; MD5 and SHA-1 digest functions</li>
+            </ul>
+            <div class="lecture-actions">
+              <a href="notes/LN08_Security.pdf"><button class="btn btn-primary">↓ Notes</button></a>
+              <a href="slides/L08_Security.pptx"><button class="btn btn-secondary">Slides</button></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- L09 -->
+        <div class="lecture-card fade-in">
+          <div class="lecture-card-header">
+            <div>
+              <div class="lecture-title">Replication</div>
+              <div class="lecture-subtitle">Performance, availability, fault tolerance, passive and active models</div>
+              <div class="lecture-ref">L09 · Part III · Coulouris §18.1–18.4</div>
+            </div>
+            <div class="lecture-num">09</div>
+          </div>
+          <div class="lecture-card-body">
+            <ul class="topics-list">
+              <li>Motivations: performance (caching, DNS round-robin), availability (1–p^n formula), fault tolerance</li>
+              <li>System model: replica managers, recoverability, static vs dynamic configurations</li>
+              <li>Five phases of a single request: Request, Coordination, Execution, Agreement, Response</li>
+              <li>Ordering guarantees: FIFO, Causal, Total; central lock server; token passing ring</li>
+              <li>Passive (primary-backup) replication: five-step sequence, linearisability guarantee</li>
+              <li>Active replication: state machine model, sequential consistency; read-one/write-all transactions</li>
+            </ul>
+            <div class="lecture-actions">
+              <a href="notes/LN09_Replication.pdf"><button class="btn btn-primary">↓ Notes</button></a>
+              <a href="slides/L09_Replication.pptx"><button class="btn btn-secondary">Slides</button></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- L10 -->
+        <div class="lecture-card fade-in">
+          <div class="lecture-card-header">
+            <div>
+              <div class="lecture-title">Distributed Transactions</div>
+              <div class="lecture-subtitle">Coordinator, two-phase commit, and nested transactions</div>
+              <div class="lecture-ref">L10 · Part III · Coulouris §17.1–17.4</div>
+            </div>
+            <div class="lecture-num">10</div>
+          </div>
+          <div class="lecture-card-body">
+            <ul class="topics-list">
+              <li>Flat vs nested distributed transactions; parallel banking subtransaction example</li>
+              <li>The coordinator: TID structure (server ID + sequence number), participants, join operation</li>
+              <li>One-Phase Commit (1PC) and its fundamental limitation — no unilateral abort</li>
+              <li>Two-Phase Commit (2PC): prepared state, voting phase, completion phase, five operations</li>
+              <li>Drawback — the blocking problem: uncertain state, held locks, extensive delays if coordinator fails</li>
+              <li>Nested 2PC: provisional commit vs prepared state; subtransaction state machine; abort propagation</li>
+            </ul>
+            <div class="lecture-actions">
+              <a href="notes/LN10_Distributed_Transactions.pdf"><button class="btn btn-primary">↓ Notes</button></a>
+              <a href="slides/L10_Distributed_Transactions.pptx"><button class="btn btn-secondary">Slides</button></a>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /Part III grid -->
+
+      <div class="part-divider fade-in">
+        <div class="part-divider-num">IV</div>
+        <div class="part-divider-content">
+          <h3>Advanced Topics &amp; Deep Dives</h3>
+          <p>Lectures 11 – 12 · Cryptography in depth and a complete revisit of remote invocation</p>
+        </div>
+      </div>
+
+      <div class="lectures-grid">
+
+        <!-- L11 -->
+        <div class="lecture-card fade-in">
+          <div class="lecture-card-header">
+            <div>
+              <div class="lecture-title">Cryptography</div>
+              <div class="lecture-subtitle">Conventional encryption, public key, PGP, hash functions, and certificates</div>
+              <div class="lecture-ref">L11 · Part IV · Supplementary Notes (Cryptography.docx)</div>
+            </div>
+            <div class="lecture-num">11</div>
+          </div>
+          <div class="lecture-card-body">
+            <ul class="topics-list">
+              <li>Cryptographic foundations: plaintext, ciphertext, keys, algorithms, cryptanalysis</li>
+              <li>Conventional (symmetric) cryptography; Caesar's Cipher as a concrete worked example</li>
+              <li>Public key cryptography (Diffie–Hellman 1975): ElGamal, RSA, Diffie-Hellman, DSA</li>
+              <li>PGP — hybrid cryptosystem: compress, session key, encrypt message, encrypt session key</li>
+              <li>Digital signatures: encrypt digest with private key; verify with public key</li>
+              <li>Hash functions; digital certificates — three-part structure and purpose</li>
+            </ul>
+            <div class="lecture-actions">
+              <a href="notes/LN11_Cryptography.pdf"><button class="btn btn-primary">↓ Notes</button></a>
+              <a href="slides/L11_Cryptography.pptx"><button class="btn btn-secondary">Slides</button></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- L12 -->
+        <div class="lecture-card fade-in">
+          <div class="lecture-card-header">
+            <div>
+              <div class="lecture-title">Remote Invocation — Deep Dive</div>
+              <div class="lecture-subtitle">Message identifiers, failure model, R/RR/RRA, RPC and RMI design</div>
+              <div class="lecture-ref">L12 · Part IV · Supplementary Notes (Remote_Invocation.docx)</div>
+            </div>
+            <div class="lecture-num">12</div>
+          </div>
+          <div class="lecture-card-body">
+            <ul class="topics-list">
+              <li>Message identifiers: two-part structure (requestId + sender process ID); reset at 2³²–1</li>
+              <li>Failure model: timeouts, duplicate filtering, idempotent operations, history (cost and purpose)</li>
+              <li>Exchange protocol variants: R, RR, RRA — semantics, trade-offs, and when to use each</li>
+              <li>HTTP methods revisited: GET, HEAD, POST, PUT, DELETE, OPTIONS, TRACE</li>
+              <li>RPC implementation: client stub, dispatcher, server stub; auto-generated from interface definition</li>
+              <li>RMI design: object references, interfaces, actions, exceptions, garbage collection; distributed object model</li>
+            </ul>
+            <div class="lecture-actions">
+              <a href="notes/LN12_Remote_Invocation_Deep_Dive.pdf"><button class="btn btn-primary">↓ Notes</button></a>
+              <a href="slides/L12_Remote_Invocation_Deep_Dive.pptx"><button class="btn btn-secondary">Slides</button></a>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /Part IV grid -->
+    </section>
+
+    <!-- Assessments -->
+    <section id="assessments" style="margin-top:3rem;">
+      <div class="section-header fade-in">
+        <p class="section-label">Assessments</p>
+        <h2 class="section-title">Assignments &amp; Examinations</h2>
+      </div>
+
+      <div class="assessments-grid">
+
+        <!-- Blog 1 -->
+        <div class="assessment-card fade-in">
+          <p class="assessment-type">Blog Post 1 · Individual</p>
+          <h3 class="assessment-title">Distributed System Technology Deep Dive</h3>
+          <p class="assessment-meta">Due: After Lecture 01 · Submission via Medium · 600–1500 words</p>
+          <p class="assessment-desc">
+            Write a blog article on a real-world distributed technology selected by the last digit of
+            your student index number. Cover: what the technology is, how it is used, what type of
+            distributed system it represents, and how it preserves the seven desired properties from Lecture 01.
+          </p>
+          <ul class="assessment-tasks">
+            <li>[0] Blockchain &nbsp;[1] Hadoop &nbsp;[2] Redis Clustering &nbsp;[3] CDN</li>
+            <li>[4] HBase &nbsp;[5] Apache Spark &nbsp;[6] Kafka &nbsp;[7] DNS</li>
+            <li>[8] Google Search Engine &nbsp;[9] Torrent</li>
+            <li>Original work only — plagiarism checking enforced</li>
+          </ul>
+          <span class="assessment-weight">5% of Final Grade</span>
+        </div>
+
+        <!-- Blog 2 -->
+        <div class="assessment-card fade-in">
+          <p class="assessment-type">Blog Post 2 · Individual</p>
+          <h3 class="assessment-title">External Data Representation &amp; Marshalling</h3>
+          <p class="assessment-meta">Due: After Lecture 04 · Submission via Medium · 600–1500 words</p>
+          <p class="assessment-desc">
+            Compare and contrast the three approaches to external data representation and marshalling
+            covered in Lecture 04. Include technical design, strengths and weaknesses in different
+            distributed contexts, and illustrative code examples.
+          </p>
+          <ul class="assessment-tasks">
+            <li>CORBA CDR — Common Data Representation for distributed object systems</li>
+            <li>Java Object Serialisation — flattening of object graphs, serialVersionUID</li>
+            <li>XML — textual self-describing format, SOAP web services</li>
+            <li>Extension ideas: Protocol Buffers, MessagePack, Apache Avro</li>
+          </ul>
+          <span class="assessment-weight">5% of Final Grade</span>
+        </div>
+
+        <!-- Blog 3 -->
+        <div class="assessment-card fade-in">
+          <p class="assessment-type">Blog Post 3 · Individual</p>
+          <h3 class="assessment-title">RabbitMQ Work Queue Experiment</h3>
+          <p class="assessment-meta">Due: After Lecture 07 · Ref: rabbitmq.com/getstarted.html · Hands-on required</p>
+          <p class="assessment-desc">
+            Implement the RabbitMQ Work Queue tutorial in any preferred language, then write a blog
+            article explaining the important concepts through the lens of your practical experiment.
+            Include observations, timing results, and at least one failure scenario tested.
+          </p>
+          <ul class="assessment-tasks">
+            <li>Producer / queue / consumer pattern; durable vs transient queues</li>
+            <li>Message acknowledgement (basic.ack), requeue on failure</li>
+            <li>Round-robin vs fair dispatch; prefetch count (basic.qos)</li>
+            <li>When to use message queues vs synchronous RPC</li>
+          </ul>
+          <span class="assessment-weight">5% of Final Grade</span>
+        </div>
+
+        <!-- Blog 4 -->
+        <div class="assessment-card fade-in">
+          <p class="assessment-type">Blog Post 4 · Individual · 3 Articles</p>
+          <h3 class="assessment-title">Cryptography Algorithm Series</h3>
+          <p class="assessment-meta">Due: After Lecture 11 · Three separate Medium articles required</p>
+          <p class="assessment-desc">
+            Write three separate Medium articles covering cryptographic algorithms used in securing
+            distributed systems. Each article must demonstrate conceptual understanding and practical
+            relevance with references to real-world protocols.
+          </p>
+          <ul class="assessment-tasks">
+            <li>Secret-Key (Symmetric) Algorithms — AES, DES, 3DES, ChaCha20; key exchange problem</li>
+            <li>Public-Key (Asymmetric) Algorithms — RSA, ElGamal, Diffie-Hellman; TLS handshake</li>
+            <li>Secure Digest Functions — MD5, SHA-1, SHA-256; HMAC; use in signatures and certificates</li>
+          </ul>
+          <span class="assessment-weight">5% of Final Grade</span>
+        </div>
+
+        <!-- Programming Exercise 1 -->
+        <div class="assessment-card fade-in">
+          <p class="assessment-type">Programming Exercise 1 · Individual</p>
+          <h3 class="assessment-title">Java RPC — HelloWorld System</h3>
+          <p class="assessment-meta">Due: After Lecture 05 · Medium article + code · Ref: examples.javacodegeeks.com/jax-ws-hello-world-example-rpc-style</p>
+          <p class="assessment-desc">
+            Design a HelloWorld system incorporating Java RPC (JAX-WS RPC-style) and publish a Medium
+            article documenting the implementation. Explain RPC concepts through the lens of your
+            experiment. Plagiarism is checked — write in your own words with your own code.
+          </p>
+          <ul class="assessment-tasks">
+            <li>Implement JAX-WS HelloWorld service and client</li>
+            <li>Explain: service interface, stubs, dispatcher, marshalling</li>
+            <li>Describe what happens over the wire (request-reply protocol)</li>
+            <li>Submit Medium article link + GitHub repository link via LMS</li>
+          </ul>
+          <span class="assessment-weight">5% of Final Grade</span>
+        </div>
+
+        <!-- Programming Exercise 2 -->
+        <div class="assessment-card fade-in">
+          <p class="assessment-type">Programming Exercise 2 · Individual</p>
+          <h3 class="assessment-title">Java RMI Experiment</h3>
+          <p class="assessment-meta">Due: After Lecture 12 · Medium article + code · Ref: baeldung.com/java-rmi</p>
+          <p class="assessment-desc">
+            Implement a Java RMI Hello or Calculator service and client, then write a Medium article
+            explaining the concepts through your experimental observations. Plagiarism is checked — write
+            in your own words with your own code.
+          </p>
+          <ul class="assessment-tasks">
+            <li>Implement remote interface extending <code>java.rmi.Remote</code>; throw <code>RemoteException</code></li>
+            <li>Implement server extending <code>UnicastRemoteObject</code>; bind to RMI registry</li>
+            <li>Implement client using <code>LocateRegistry.getRegistry()</code> and <code>lookup()</code></li>
+            <li>Cover: stub generation, registry, remote exceptions, comparison with RPC</li>
+            <li>Submit Medium article link + GitHub repository link via LMS</li>
+          </ul>
+          <span class="assessment-weight">5% of Final Grade</span>
+        </div>
+
+        <!-- Final Project — Azure Cloud -->
+        <div class="assessment-card fade-in">
+          <p class="assessment-type">Final Project · Individual · Azure Cloud</p>
+          <h3 class="assessment-title">Hands-on Cloud Services — Azure Infrastructure Implementation</h3>
+          <p class="assessment-meta">
+            Due: End of Semester · GitHub + Medium + YouTube ·
+            <a href="https://medium.com/setublog/hands-on-to-cloud-services-dc0ec0cbb9e1" target="_blank" style="color:var(--accent);">Reference Article ↗</a>
+          </p>
+          <p class="assessment-desc">
+            Implement the cloud infrastructure architecture described in the reference article using
+            <strong>Microsoft Azure</strong> under your University student account
+            (<code>KelaniNetId@kln.ac.lk</code>). You are not required to build complex application
+            logic — the evaluation focuses on your cloud infrastructure setup and your ability to
+            explain what you have done. Open-source sample code repositories may be used for the
+            application layer.
+          </p>
+          <ul class="assessment-tasks">
+            <li><strong>Azure Setup</strong> — Activate Azure Dev Tools via your University email at signup.azure.com/studentverification; create a free trial subscription</li>
+            <li><strong>Required Services</strong> — CDN · Azure AD · Key Vault · Front Door · Web Apps · Azure Functions · MySQL · Azure Cache for Redis · Azure Storage · Application Insights · Firewall (Network Restrictions)</li>
+            <li><strong>ARM Templates</strong> — Provide Azure Resource Manager (ARM) infrastructure-as-code templates for the full architecture; commit to a public GitHub repository</li>
+            <li><strong>Medium Blog Article</strong> — Write a detailed article on Medium explaining what you built, how each service was configured, what challenges you encountered, and what you learned; include architecture diagrams and screenshots</li>
+            <li><strong>YouTube Video</strong> — Record a video walkthrough of your implementation demonstrating the running system; link the video inside your Medium article; submit the YouTube URL via LMS</li>
+          </ul>
+          <span class="assessment-weight">15% of Final Grade</span>
+        </div>
+
+        <!-- Final Exam -->
+        <div class="assessment-card fade-in">
+          <p class="assessment-type">Final Examination</p>
+          <h3 class="assessment-title">Comprehensive End-of-Semester Examination</h3>
+          <p class="assessment-meta">Examination Period · Covers All 12 Lectures · All Four Parts</p>
+          <p class="assessment-desc">
+            Tests application of concepts from all four parts. Emphasis on reasoning, analysis, and
+            engineering judgement about distributed system design trade-offs rather than rote recall.
+            Exercises from the lecture notes (e.g. UDP/TCP transmission time calculation) are examinable.
+          </p>
+          <ul class="assessment-tasks">
+            <li>Part I — Foundations: definitions, system models, networking, IPC (includes calculation)</li>
+            <li>Part II — Communication: request-reply, RPC/RMI architecture, Kubernetes diagrams</li>
+            <li>Part III — Security &amp; Correctness: draw authentication flow, 2PC message sequence</li>
+            <li>Part IV — Advanced: cryptography scenarios, remote invocation deep analysis</li>
+          </ul>
+          <span class="assessment-weight">55% of Final Grade</span>
+        </div>
+
+      </div><!-- /assessments-grid -->
+
+      <!-- Learning path -->
+      <div class="section-header fade-in" style="margin-top:3rem;">
+        <p class="section-label">Your Journey</p>
+        <h2 class="section-title">Learning path through this course</h2>
+      </div>
+
+      <div class="learning-path fade-in">
+        <div class="path-item">
+          <div class="path-phase">Weeks 1–2</div>
+          <div class="path-desc"><strong>Establish foundations.</strong> Read Coulouris Chapters 1 and 2 before lectures. Understand the three core characteristics and the physical–architectural–fundamental model framework. Complete Blog Post 1 early — the topic research deepens your understanding of the abstract system you study throughout the module.</div>
+        </div>
+        <div class="path-item">
+          <div class="path-phase">Weeks 3–4</div>
+          <div class="path-desc"><strong>Master the communication substrate.</strong> Lectures 03–04 are dense but critical. Work through the exercises: calculate UDP/TCP transmission times, compare network types, understand why marshalling exists. Complete Blog Post 2 on external data representation.</div>
+        </div>
+        <div class="path-item">
+          <div class="path-phase">Week 5 — Blog 1 &amp; 2 Due</div>
+          <div class="path-desc"><strong>Programming Exercise 1 due.</strong> Java RPC HelloWorld system — complete immediately after Lecture 05 while the concepts are fresh. Submit Medium article + GitHub link via LMS.</div>
+        </div>
+        <div class="path-item">
+          <div class="path-phase">Weeks 5–7</div>
+          <div class="path-desc"><strong>Apply communication paradigms.</strong> Lectures 05–07 cover the most practically relevant material. Do the RabbitMQ experiment for Blog Post 3 yourself — do not just read about it. Hands-on experimentation with failure scenarios will make the concepts concrete.</div>
+        </div>
+        <div class="path-item">
+          <div class="path-phase">Week 7 — Blog 3 Due</div>
+          <div class="path-desc"><strong>Blog Post 3 due.</strong> RabbitMQ Work Queue experiment. Complete all hands-on steps — include timing data, screenshots, and your own failure scenario results in the article.</div>
+        </div>
+        <div class="path-item">
+          <div class="path-phase">Weeks 8–10</div>
+          <div class="path-desc"><strong>Tackle correctness and security.</strong> Lectures 08–10 are conceptually demanding. Draw the Kerberos authentication flow diagrams by hand. Work through the 2PC protocol step by step with a concrete banking example. Understand why the blocking problem in 2PC is fundamental, not just an implementation detail.</div>
+        </div>
+        <div class="path-item">
+          <div class="path-phase">Weeks 11–12</div>
+          <div class="path-desc"><strong>Synthesise and complete.</strong> Complete the three cryptography blog articles after Lecture 11. After Lecture 12, complete Programming Exercise 2 (Java RMI). Review the module by connecting cross-cutting themes: How does security relate to the failure model? How does replication relate to consistency in distributed transactions?</div>
+        </div>
+        <div class="path-item">
+          <div class="path-phase">Final Project</div>
+          <div class="path-desc"><strong>Azure Cloud Infrastructure.</strong> Activate Azure Dev Tools under your University email (<code>KelaniNetId@stu.kln.ac.lk</code>) and implement the cloud architecture from the reference article. Set up all required services: CDN, Azure AD, Key Vault, Front Door, Web Apps, Azure Functions, MySQL, Redis, Storage, Application Insights, and Firewall. Write ARM templates, commit to GitHub, write your Medium blog article, and record a YouTube video walkthrough of your running implementation. Link the video inside the Medium article and submit both URLs via LMS.</div>
+        </div>
+        <div class="path-item">
+          <div class="path-phase">Exam Period</div>
+          <div class="path-desc"><strong>Final Examination.</strong> Comprehensive examination across all four parts. Emphasis on engineering judgement and application of principles. Practise drawing the RPC/RMI architecture, the 2PC message flow, and the Kerberos authentication scenario from memory.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Resources -->
+    <section id="resources" style="margin-top:3rem;">
+      <div class="section-header fade-in">
+        <p class="section-label">Course Resources</p>
+        <h2 class="section-title">Materials &amp; references</h2>
+      </div>
+
+      <div class="resources-grid fade-in">
+        <div class="resource-card">
+          <div class="resource-icon">📘</div>
+          <h3>Textbook</h3>
+          <p>Coulouris et al., <em>Distributed Systems: Concepts &amp; Design</em>, 5th ed., Pearson, 2012</p>
+        </div>
+        <div class="resource-card">
+          <div class="resource-icon">🐇</div>
+          <h3><a href="https://rabbitmq.com/getstarted.html" target="_blank">RabbitMQ Tutorials</a></h3>
+          <p>Work Queue tutorial for Blog Post 3 — complete all six getting-started examples</p>
+        </div>
+        <div class="resource-card">
+          <div class="resource-icon">☕</div>
+          <h3><a href="https://examples.javacodegeeks.com/enterprise-java/jws/jax-ws-hello-world-example-rpc-style/" target="_blank">Java RPC (JAX-WS)</a></h3>
+          <p>Reference for Programming Exercise E1 — HelloWorld JAX-WS RPC-style web service</p>
+        </div>
+        <div class="resource-card">
+          <div class="resource-icon">🔗</div>
+          <h3><a href="https://www.baeldung.com/java-rmi" target="_blank">Java RMI (Baeldung)</a></h3>
+          <p>Reference for Programming Exercise E2 — comprehensive Java RMI tutorial with working examples</p>
+        </div>
+        <div class="resource-card">
+          <div class="resource-icon">☁️</div>
+          <h3><a href="https://medium.com/setublog/hands-on-to-cloud-services-dc0ec0cbb9e1" target="_blank">Azure Cloud Project</a></h3>
+          <p>Reference article for the Final Project — cloud infrastructure architecture to implement in Azure</p>
+        </div>
+        <div class="resource-card">
+          <div class="resource-icon">🔷</div>
+          <h3><a href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/overview" target="_blank">ARM Templates</a></h3>
+          <p>Azure Resource Manager Templates — official docs for the infrastructure-as-code deliverable required by the Final Project</p>
+        </div>
+        <div class="resource-card">
+          <div class="resource-icon">💻</div>
+          <h3><a href="https://github.com/Tiroshan/SENG-41283-distributed-and-cloud-computing" target="_blank">Course GitHub</a></h3>
+          <p>Lecture code examples, UDP/TCP Java implementations, and supplementary material</p>
+        </div>
+        <div class="resource-card">
+          <div class="resource-icon">☁️</div>
+          <h3><a href="https://kubernetes.io/docs/" target="_blank">Kubernetes Docs</a></h3>
+          <p>Official documentation for container orchestration concepts from Lecture 06</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section id="about" style="margin-top:3rem; margin-bottom:3rem;">
+      <div class="section-header fade-in">
+        <p class="section-label">About This Module</p>
+        <h2 class="section-title">Module Information</h2>
+      </div>
+
+      <div class="overview-card fade-in">
+        <p>
+          <strong>SENG 41283 — Distributed & Cloud Computing</strong> is delivered by
+          <strong>Eng. Dr. Tiroshan Madushanka</strong> of the Department of Software Engineering,
+          University of Kelaniya. The module is taught in Year 4, Semester 1 of the BSc (Hons)
+          Software Engineering degree programme.
+        </p>
+        <p>
+          The module follows <strong>Coulouris, Dollimore, Kindberg &amp; Blair, <em>Distributed Systems:
+          Concepts and Design</em> (5th ed., Pearson, 2012)</strong> with supplementary notes for
+          Lectures 06, 11, and 12. Students complement lectures with individual reading and practical
+          blog writing exercises published on Medium.
+        </p>
+        <p>
+          <strong>Pre-requisites:</strong> SENG 21283 Computer Networks, SENG 21213 Computer Architecture and Operating Systems,
+          SENG 21223 Object-Oriented Programming. Students are expected to be comfortable with Java and basic networking concepts before starting this module.
+        </p>
+        <p>
+          <strong>Academic integrity:</strong> All blog posts and programming exercises are checked for plagiarism using
+          automated tools. Self-plagiarism (reusing your own earlier submissions) is also penalised.
+          Articles should be written as if for a technically literate developer audience, not as a lecture summary.
+        </p>
+      </div>
+
+      <div class="course-structure fade-in">
+        <p><strong>Contact:</strong> Office hours by appointment. Please use the University LMS for all submission links, announcements, and assignment briefs. Grade feedback is released via the LMS within two weeks of each submission deadline.</p>
+        <p><strong>Additional reading:</strong> For replication and consistency, Lamport's "Time, Clocks, and the Ordering of Events in a Distributed System" (1978) and the Google Spanner paper (2012) are excellent. For security, RFC 5246 (TLS 1.2) is directly relevant to Lectures 08 and 11. For microservices, Martin Fowler's microservices.io provides practitioner patterns that complement Lecture 06.</p>
+        <p><strong>Software to install:</strong> <code>Java JDK 8+</code> for programming exercises; <code>Docker Desktop</code> and <code>kubectl</code> for Kubernetes experiments; <code>RabbitMQ</code> with the management plugin for Blog Post 3; <code>Wireshark</code> to observe UDP and TCP behaviour first-hand during Lectures 03 and 04.</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Footer -->
+<footer>
+  <p class="footer-title">SENG 41283 — Distributed & Cloud Computing</p>
+  <p class="footer-sub">BSc (Hons) Software Engineering · Year 4 · Semester 01 · University of Kelaniya</p>
+  <div class="footer-links">
+    <a href="#lectures">Lectures</a>
+    <a href="#assessments">Assessments</a>
+    <a href="#resources">Resources</a>
+    <a href="#about">About</a>
+    <a href="https://tiroshanm.github.io/" target="_blank">Portfolio ↗</a>
+    <a href="https://github.com/Tiroshan/SENG-41283-distributed-and-cloud-computing" target="_blank">GitHub ↗</a>
+  </div>
+  <p class="footer-copy">© SENG 41283 · Department of Software Engineering · University of Kelaniya · All rights reserved</p>
+</footer>
+
+<script>
+// Scroll progress bar
+const scrollBar = document.getElementById('scrollBar');
+window.addEventListener('scroll', () => {
+  const total = document.documentElement.scrollHeight - window.innerHeight;
+  scrollBar.style.width = (window.scrollY / total * 100) + '%';
+}, { passive: true });
+
+// Nav shrink on scroll
+const nav = document.getElementById('mainNav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 40);
+}, { passive: true });
+
+// Fade-in observer
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('visible'), i * 55);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// Sidebar + nav link active tracking
+const sectionIds = ['lectures', 'assessments', 'resources', 'about'];
+const sidebarLinks = document.querySelectorAll('.sidebar-nav-link');
+const navLinks     = document.querySelectorAll('.nav-links a');
+
+const secObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      sidebarLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + id));
+      navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + id));
+    }
+  });
+}, { threshold: 0.2, rootMargin: '-60px 0px -60% 0px' });
+
+sectionIds.forEach(id => {
+  const el = document.getElementById(id);
+  if (el) secObserver.observe(el);
+});
+</script>
+</body>
+</html>
